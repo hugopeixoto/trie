@@ -1,5 +1,6 @@
 
 #include "trie.h"
+#include "suffix_compression.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -25,7 +26,7 @@ int main (int argc, char* argv[])
   }
 
   printf("node count: %d\n", t.node_count_);
-  trie_compress(&t); /* O(n^2) because i'm lazy, could be O(n log n) */
+  trie_suffix_compress(&t);
   printf("node count: %d\n", t.node_count_);
 
   for (i = 1; i  < argc; ++i) {

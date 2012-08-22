@@ -19,7 +19,5 @@ void trie_insert (struct trie*, const char*);
 
 int trie_lookup (struct trie*, const char*);
 
-void trie_compress (struct trie*);
-
 #endif
 
