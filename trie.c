@@ -93,11 +93,7 @@ void trie_compress (struct trie* a_trie)
 
 static int trie_equivalent (const struct node* a_a, const struct node* a_b)
 {
-  if (node_is_leaf(a_a) && node_is_leaf(a_b)) {
-    return a_a->value == a_b->value;
-  }
-
-  return a_a->left == a_b->left && a_a->right == a_b->right;
+  return memcmp(a_a, a_b, sizeof(*a_a)) == 0;
 }
 
 static struct node** trie_equivalent_lookup (struct node** a_nodes, struct node* a_node)
