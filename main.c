@@ -21,6 +21,8 @@ int main (int argc, char* argv[])
     trie_insert(&t, words[nwords]);
   }
 
+  printf("validation: %d\n", trie_validate(&t));
+
   for (i = 1; i  < argc; ++i) {
     printf("Lookup %s: %d\n", argv[i], trie_lookup(&t, argv[i]));
   }
@@ -28,6 +30,7 @@ int main (int argc, char* argv[])
   printf("node count: %d\n", t.node_count_);
   trie_suffix_compress(&t);
   printf("node count: %d\n", t.node_count_);
+  printf("validation: %d\n", trie_validate(&t));
 
   for (i = 1; i  < argc; ++i) {
     printf("Lookup %s: %d\n", argv[i], trie_lookup(&t, argv[i]));

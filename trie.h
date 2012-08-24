@@ -19,5 +19,7 @@ void trie_insert (struct trie*, const char*);
 
 int trie_lookup (struct trie*, const char*);
 
+int trie_validate (const struct trie* a_trie);
+
 #endif
 
