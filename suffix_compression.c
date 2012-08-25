@@ -14,11 +14,11 @@ static struct node* trie_node_compress (struct trie*, struct node*, struct node*
 void trie_suffix_compress (struct trie* a_trie)
 {
   int used = 0;
-  struct node** nodes = (struct node**)malloc(sizeof(struct node*) * a_trie->node_count_);
+  struct node** nodes = (struct node**)malloc(sizeof(struct node*) * a_trie->count);
 
-  memset(nodes, 0, sizeof(struct node*) * a_trie->node_count_);
+  memset(nodes, 0, sizeof(struct node*) * a_trie->count);
 
-  trie_node_compress(a_trie, a_trie->root_, nodes, &used);
+  trie_node_compress(a_trie, a_trie->root, nodes, &used);
 
   free(nodes);
 }
@@ -84,7 +84,7 @@ static struct node* trie_node_compress (struct trie* a_trie, struct node* a_node
   ptr = trie_equivalent_lookup(a_nodes, a_node, a_used);
     
   if (ptr) {
-    --(a_trie->node_count_);
+    --(a_trie->count);
     node_dealloc(a_node);
     return *ptr;
   } else {

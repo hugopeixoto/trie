@@ -18,17 +18,15 @@ struct trie* trie_alloc ()
 
 void trie_dealloc (struct trie* a_trie)
 {
-  if (a_trie->root_ != NULL) {
+  if (a_trie->root != NULL) {
     unsigned int i = 0;
-    unsigned int count = 0;
     struct node** nodes = NULL;
 
-    count = a_trie->node_count_ + 1;
-    nodes = (struct node**)malloc(count * sizeof(struct node*));
-    memset(nodes, 0, count * sizeof(struct node*));
+    nodes = (struct node**)malloc(a_trie->count * sizeof(struct node*));
+    memset(nodes, 0, a_trie->count * sizeof(struct node*));
     trie_reset_order_internal(a_trie, nodes);
 
-    for (i = 0; i < count; ++i) {
+    for (i = 0; i < a_trie->count; ++i) {
       if (nodes[i]) {
         node_dealloc(nodes[i]);
       }
@@ -42,15 +40,15 @@ void trie_dealloc (struct trie* a_trie)
 
 struct trie* trie_init (struct trie* a_trie)
 {
-  a_trie->root_ = node_init(node_alloc(), '\0');
-  a_trie->node_count_ = 0;
+  a_trie->root = node_init(node_alloc(), '\0');
+  a_trie->count = 1;
 
   return a_trie;
 }
 
 void trie_insert (struct trie* a_trie, const char* a_text)
 {
-  trie_node_insert(a_trie, a_trie->root_, a_text);
+  trie_node_insert(a_trie, a_trie->root, a_text);
 }
 
 static void trie_node_insert (struct trie* a_trie, struct node* a_node, const char* a_text)
@@ -62,7 +60,7 @@ static void trie_node_insert (struct trie* a_trie, struct node* a_node, const ch
   if ((unsigned char)*a_text == a_node->value) {
     if (*++a_text) {
       if (a_node->right == NULL) {
-        ++(a_trie->node_count_);
+        ++(a_trie->count);
         a_node->right = node_init(node_alloc(), (unsigned char)*a_text);
       }
       trie_node_insert(a_trie, a_node->right, a_text);
@@ -72,7 +70,7 @@ static void trie_node_insert (struct trie* a_trie, struct node* a_node, const ch
   } else if ((unsigned char)*a_text < a_node->value) {
     struct node* n = NULL;
 
-    ++(a_trie->node_count_);
+    ++(a_trie->count);
     n = node_init(node_alloc(), a_node->value);
     n->right = a_node->right;
     n->left = a_node->left;
@@ -88,7 +86,7 @@ static void trie_node_insert (struct trie* a_trie, struct node* a_node, const ch
 
   } else {
     if (a_node->left == NULL) {
-      ++(a_trie->node_count_);
+      ++(a_trie->count);
       a_node->left = node_init(node_alloc(), (unsigned char)*a_text);
     }
 
@@ -98,7 +96,7 @@ static void trie_node_insert (struct trie* a_trie, struct node* a_node, const ch
 
 int trie_lookup (struct trie* a_trie, const char* a_text)
 {
-  return !!trie_node_lookup(a_trie, a_trie->root_, a_text);
+  return !!trie_node_lookup(a_trie, a_trie->root, a_text);
 }
 
 static const struct node* trie_node_lookup (const struct trie* a_trie, const struct node* a_node, const char* a_text)
@@ -124,7 +122,7 @@ static const struct node* trie_node_lookup (const struct trie* a_trie, const str
 
 int trie_validate (const struct trie* a_trie)
 {
-  return trie_node_validate(a_trie->root_);
+  return trie_node_validate(a_trie->root);
 }
 
 static int trie_node_validate (const struct node* a_node)
@@ -150,8 +148,8 @@ void trie_reset_order (struct trie* a_trie)
 static void trie_reset_order_internal (struct trie* a_trie, struct node** a_nodes)
 {
   int current = 0;
-  trie_node_reset_order(a_trie->root_, NULL, a_nodes);
-  trie_node_reset_order(a_trie->root_, &current, a_nodes);
+  trie_node_reset_order(a_trie->root, NULL, a_nodes);
+  trie_node_reset_order(a_trie->root, &current, a_nodes);
 }
 
 static void trie_node_reset_order (struct node* a_node, int* a_current, struct node** a_nodes)

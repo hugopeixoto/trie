@@ -30,14 +30,19 @@ struct indexed_trie* indexed_trie_init (struct indexed_trie* a_indexed_trie, con
   unsigned int nnodes = 1;
   struct node_info* visited =  NULL;
   
-  visited = (struct node_info*)malloc((a_trie->node_count_ + 1) * sizeof(struct node_info));
-  memset(visited, 0, sizeof(struct node_info) * (a_trie->node_count_ + 1));
+  visited = (struct node_info*)calloc(a_trie->count, sizeof(struct node_info));
 
-  indexed_trie_count(a_trie->root_, visited, &nnodes);
+  /**
+   * Indices start at one. this means that by the end, nnodes will be
+   * equivalent to the number of nodes. Since we want to leave node 0
+   * empty, we'll allocate n+1 nodes.
+   */
+  indexed_trie_count(a_trie->root, visited, &nnodes);
+  ++nnodes;
 
   a_indexed_trie->nodes_ = (struct indexed_trie_node*)malloc(sizeof(struct indexed_trie_node) * nnodes);
 
-  for (i = 0; i <= a_trie->node_count_; ++i) {
+  for (i = 0; i < a_trie->count; ++i) {
     unsigned int j = visited[i].index;
     struct node* n = visited[i].node;
     unsigned char c = (unsigned char) n->value;
@@ -48,6 +53,7 @@ struct indexed_trie* indexed_trie_init (struct indexed_trie* a_indexed_trie, con
     }
   }
   
+  free(visited);
   return a_indexed_trie;
 }
 

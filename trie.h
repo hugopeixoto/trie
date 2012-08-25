@@ -5,8 +5,8 @@
 struct node;
 
 struct trie {
-  struct node* root_;
-  unsigned int node_count_;
+  struct node* root;
+  unsigned int count;
 };
 
 struct trie* trie_alloc ();
