@@ -24,8 +24,12 @@ struct node* node_init (struct node* a_node, unsigned char a_char)
   return a_node;
 }
 
-int node_is_leaf (const struct node* a_node)
+int node_cmp (const struct node* a_a, const struct node* a_b)
 {
-  return a_node->left == NULL && a_node->right == NULL;
+  if (a_a->left != a_b->left) { return a_a->left - a_b->left; }
+  if (a_a->right != a_b->right) { return a_a->right - a_b->right; }
+  if (a_a->visited != a_b->visited) { return a_a->visited - a_b->visited; }
+  if (a_a->value != a_b->value) { return a_a->value - a_b->value; }
+  return a_a->yes - a_b->yes;
 }
 

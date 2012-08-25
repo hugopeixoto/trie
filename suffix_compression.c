@@ -33,7 +33,7 @@ static struct node** trie_equivalent_binary_search (struct node** a_nodes, struc
   while (begin != end) {
     p = begin + (end - begin) / 2;
     
-    cmp = memcmp(a_node, a_nodes[p], sizeof(*a_node));
+    cmp = node_cmp(a_node, a_nodes[p]);
 
     if (cmp == 0) {
       return a_nodes + p;
@@ -53,7 +53,7 @@ static struct node** trie_equivalent_lookup (struct node** a_nodes, struct node*
 {
   struct node** p = trie_equivalent_binary_search(a_nodes, a_node, a_used);
 
-  if (*p && memcmp(*p, a_node, sizeof(*a_node)) == 0) {
+  if (*p && node_cmp(*p, a_node) == 0) {
     return p;
   }
 

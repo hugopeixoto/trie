@@ -8,7 +8,8 @@
 static const struct node* trie_node_lookup (const struct trie*, const struct node*, const char*);
 static void trie_node_insert (struct trie*, struct node*, const char*);
 static int trie_node_validate (const struct node* a_node);
-static void trie_node_reset_order (struct node* a_node, int* a_current);
+static void trie_reset_order_internal (struct trie*, struct node**);
+static void trie_node_reset_order (struct node*, int*, struct node**);
 
 struct trie* trie_alloc ()
 {
@@ -18,8 +19,22 @@ struct trie* trie_alloc ()
 void trie_dealloc (struct trie* a_trie)
 {
   if (a_trie->root_ != NULL) {
-    /* TODO(hpeixoto): dealloc all the nodes */
-    node_dealloc(a_trie->root_);
+    unsigned int i = 0;
+    unsigned int count = 0;
+    struct node** nodes = NULL;
+
+    count = a_trie->node_count_ + 1;
+    nodes = (struct node**)malloc(count * sizeof(struct node*));
+    memset(nodes, 0, count * sizeof(struct node*));
+    trie_reset_order_internal(a_trie, nodes);
+
+    for (i = 0; i < count; ++i) {
+      if (nodes[i]) {
+        node_dealloc(nodes[i]);
+      }
+    }
+
+    free(nodes);
   }
 
   free(a_trie);
@@ -33,7 +48,6 @@ struct trie* trie_init (struct trie* a_trie)
   return a_trie;
 }
 
-#include <stdio.h>
 void trie_insert (struct trie* a_trie, const char* a_text)
 {
   trie_node_insert(a_trie, a_trie->root_, a_text);
@@ -130,19 +144,32 @@ static int trie_node_validate (const struct node* a_node)
 
 void trie_reset_order (struct trie* a_trie)
 {
-  int current = 0;
-  trie_node_reset_order(a_trie->root_, &current);
+  trie_reset_order_internal(a_trie, NULL);
 }
 
-static void trie_node_reset_order (struct node* a_node, int* a_current)
+static void trie_reset_order_internal (struct trie* a_trie, struct node** a_nodes)
 {
-  a_node->visited = (*a_current)++;
+  int current = 0;
+  trie_node_reset_order(a_trie->root_, NULL, a_nodes);
+  trie_node_reset_order(a_trie->root_, &current, a_nodes);
+}
 
-  if (a_node->left && !a_node->left->visited) {
-    trie_node_reset_order(a_node->left, a_current);
+static void trie_node_reset_order (struct node* a_node, int* a_current, struct node** a_nodes)
+{
+  if (a_current) {
+    a_node->visited = (*a_current)++;
+    if (a_nodes) {
+      a_nodes[a_node->visited] = a_node;
+    }
+  } else {
+    a_node->visited = 0;
   }
 
-  if (a_node->right && !a_node->right->visited) {
-    trie_node_reset_order(a_node->right, a_current);
+  if (a_node->left && (!a_current || !a_node->left->visited)) {
+    trie_node_reset_order(a_node->left, a_current, a_nodes);
+  }
+
+  if (a_node->right && (!a_current || !a_node->right->visited)) {
+    trie_node_reset_order(a_node->right, a_current, a_nodes);
   }
 }

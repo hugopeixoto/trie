@@ -5,11 +5,12 @@
 #include <stdio.h>
 #include <string.h>
 
+char words[1<<16][1<<5];
+
 int main (int argc, char* argv[])
 {
   int i;
   int nwords;
-  char words[1<<16][1<<5];
   struct trie* t;
 
   t = trie_init(trie_alloc());

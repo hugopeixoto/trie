@@ -13,7 +13,8 @@ struct node {
 struct node* node_alloc ();
 void node_dealloc (struct node*);
 struct node* node_init (struct node*, unsigned char a_value);
-int node_is_leaf (const struct node*);
+
+int node_cmp (const struct node*, const struct node*);
 
 #endif
 
