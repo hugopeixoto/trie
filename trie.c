@@ -8,6 +8,7 @@
 static const struct node* trie_node_lookup (const struct trie*, const struct node*, const char*);
 static void trie_node_insert (struct trie*, struct node*, const char*);
 static int trie_node_validate (const struct node* a_node);
+static void trie_node_reset_order (struct node* a_node, int* a_current);
 
 struct trie* trie_alloc ()
 {
@@ -16,6 +17,11 @@ struct trie* trie_alloc ()
 
 void trie_dealloc (struct trie* a_trie)
 {
+  if (a_trie->root_ != NULL) {
+    /* TODO(hpeixoto): dealloc all the nodes */
+    node_dealloc(a_trie->root_);
+  }
+
   free(a_trie);
 }
 
@@ -27,6 +33,7 @@ struct trie* trie_init (struct trie* a_trie)
   return a_trie;
 }
 
+#include <stdio.h>
 void trie_insert (struct trie* a_trie, const char* a_text)
 {
   trie_node_insert(a_trie, a_trie->root_, a_text);
@@ -38,28 +45,29 @@ static void trie_node_insert (struct trie* a_trie, struct node* a_node, const ch
    * so that it yields the same trie regardlessly
    * of the word insertion order.
    */
-  if (*a_text == a_node->value) {
+  if ((unsigned char)*a_text == a_node->value) {
     if (*++a_text) {
       if (a_node->right == NULL) {
         ++(a_trie->node_count_);
-        a_node->right = node_init(node_alloc(), *a_text);
+        a_node->right = node_init(node_alloc(), (unsigned char)*a_text);
       }
       trie_node_insert(a_trie, a_node->right, a_text);
     } else {
       a_node->yes = 1;
     }
-  } else if (*a_text < a_node->value) {
+  } else if ((unsigned char)*a_text < a_node->value) {
     struct node* n = NULL;
 
     ++(a_trie->node_count_);
     n = node_init(node_alloc(), a_node->value);
     n->right = a_node->right;
-    n->left  = a_node->left;
-    n->yes   = a_node->yes;
+    n->left = a_node->left;
+    n->visited = a_node->visited;
+    n->yes = a_node->yes;
 
     a_node->right = NULL;
     a_node->left  = n;
-    a_node->value = *a_text;
+    a_node->value = (unsigned char)*a_text;
     a_node->yes   = 0;
 
     trie_node_insert(a_trie, a_node, a_text);
@@ -67,7 +75,7 @@ static void trie_node_insert (struct trie* a_trie, struct node* a_node, const ch
   } else {
     if (a_node->left == NULL) {
       ++(a_trie->node_count_);
-      a_node->left = node_init(node_alloc(), *a_text);
+      a_node->left = node_init(node_alloc(), (unsigned char)*a_text);
     }
 
     trie_node_insert(a_trie, a_node->left, a_text);
@@ -76,7 +84,7 @@ static void trie_node_insert (struct trie* a_trie, struct node* a_node, const ch
 
 int trie_lookup (struct trie* a_trie, const char* a_text)
 {
-  return trie_node_lookup(a_trie, a_trie->root_, a_text) ? 1 : 0;
+  return !!trie_node_lookup(a_trie, a_trie->root_, a_text);
 }
 
 static const struct node* trie_node_lookup (const struct trie* a_trie, const struct node* a_node, const char* a_text)
@@ -118,4 +126,23 @@ static int trie_node_validate (const struct node* a_node)
   }
 
   return 0;
+}
+
+void trie_reset_order (struct trie* a_trie)
+{
+  int current = 0;
+  trie_node_reset_order(a_trie->root_, &current);
+}
+
+static void trie_node_reset_order (struct node* a_node, int* a_current)
+{
+  a_node->visited = (*a_current)++;
+
+  if (a_node->left && !a_node->left->visited) {
+    trie_node_reset_order(a_node->left, a_current);
+  }
+
+  if (a_node->right && !a_node->right->visited) {
+    trie_node_reset_order(a_node->right, a_current);
+  }
 }

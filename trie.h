@@ -21,5 +21,7 @@ int trie_lookup (struct trie*, const char*);
 
 int trie_validate (const struct trie* a_trie);
 
+void trie_reset_order (struct trie* a_trie);
+
 #endif
 
