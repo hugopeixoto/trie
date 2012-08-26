@@ -10,7 +10,8 @@ struct indexed_trie_node {
 };
 
 struct indexed_trie {
-  struct indexed_trie_node* nodes_;  
+  struct indexed_trie_node* nodes;
+  unsigned int count;
 };
 
 struct indexed_trie* indexed_trie_alloc ();
