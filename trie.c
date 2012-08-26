@@ -105,7 +105,7 @@ static const struct node* trie_node_lookup (const struct trie* a_trie, const str
     return NULL;
   }
 
-  if (a_node->value == *a_text) {
+  if (a_node->value == (unsigned char)*a_text) {
     if (*++a_text) {
       return trie_node_lookup(a_trie, a_node->right, a_text);
     } else {
